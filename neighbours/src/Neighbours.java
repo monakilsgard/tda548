@@ -69,6 +69,7 @@ public class Neighbours extends Application {
         NA,        // Not applicable (NA), used for NONEs
         SATISFIED
     }
+
     final static Random rand = new Random();
 
     // Below is the *only* accepted instance variable (i.e. variables outside any method)
@@ -87,7 +88,7 @@ public class Neighbours extends Application {
     // Method automatically called by JavaFX runtime
     // That's why we must have "@Override" and "public" (just accept for now)
     @Override
-    public void init(){
+    public void init() {
         //test();    // <---------------- Uncomment to TEST!
 
         // %-distribution of RED, BLUE and NONE
@@ -96,17 +97,12 @@ public class Neighbours extends Application {
         int nLocations = 900;
 
 
-
         // TODO find methods that does the job
         // ...
         // world =           // Finally set world variable
     }
 
-    // Check if inside world
-    boolean isValidLocation(int size, int row, int col) {
-        // TODO
-        return false;
-    }
+
 
     // ----------- Utility methods -----------------
 
@@ -127,7 +123,7 @@ public class Neighbours extends Application {
 
         }
 
-        for (int i = BLUE ; i < BLUE + RED; i++) {
+        for (int i = BLUE; i < BLUE + RED; i++) {
 
             Actor valueofRed = Actor.RED;
             arr[i] = valueofRed;
@@ -145,11 +141,10 @@ public class Neighbours extends Application {
     }
 
 
-
     // SHUFFLES ARRAY
     Actor[] shuffleArray(Actor[] array) {
         for (int i = array.length - 1; i > 0; i--) {
-            int index = rand.nextInt (i + 1); // gör random mellan 0 och i + 1 (i = max)
+            int index = rand.nextInt(i + 1); // gör random mellan 0 och i + 1 (i = max)
             Actor a = array[index];
             array[index] = array[i]; //sätter värdet på i på slumpat index
             array[i] = a; // flyttar/bytar plats på indexet man flyttade till med startindexet
@@ -158,47 +153,42 @@ public class Neighbours extends Application {
         }
         return array;
     }
+
     // GÖR ARRAY TILL MATRIS
-    Actor [][] toMatrix (Actor [] array ) {
+    Actor[][] toMatrix(Actor[] array) {
 
-        int r = (int) (StrictMath.round ( StrictMath.sqrt (array.length)));
-        int c = (int) (StrictMath.round (StrictMath.sqrt (array.length)));
+        int r = (int) (StrictMath.round(StrictMath.sqrt(array.length)));
+        int c = (int) (StrictMath.round(StrictMath.sqrt(array.length)));
 
-        Actor [][] matrix = new Actor [r][c];
+        Actor[][] matrix = new Actor[r][c];
 
-
-        for ( int i = 0; i < array.length; i++){
+        for (int i = 0; i < array.length; i++) {
 
             r = i / matrix.length;
             c = i % matrix.length;
 
-            matrix[r][c] = array [i];
-
+            matrix[r][c] = array[i];
         }
-
         return matrix;
-
     }
 
-
-
-    int [] checkEmpty(Actor[][] matrix){            //hittar alla tomma i array
+    int[] checkEmpty(Actor[][] matrix) {            //hittar alla tomma i array
         int count = 0;
-        for (int r = 0; r < matrix.length; r++){
-            for (int c = 0; c < matrix.length; c++){
-                if (matrix[r][c] == Actor.NONE ) {
-                  count++;
+        for (int r = 0; r < matrix.length; r++) {
+            for (int c = 0; c < matrix.length; c++) {
+                if (matrix[r][c] == Actor.NONE) {
+                    count++;
 
                 }
             }
         }
 
-        int [] noneArr = new int [count];
+        int[] noneArr = new int[count];
         int indexInArr = 0;
 
-        for (int r = 0; r < matrix.length; r++){
-            for (int c = 0; c < matrix.length; c++){
-                if (matrix[r][c] == Actor.NONE ) {
+        for (int r = 0; r < matrix.length; r++) {
+            for (int c = 0; c < matrix.length; c++) {
+                if (matrix[r][c] == Actor.NONE) {
                     int index = r * matrix.length + c;
                     noneArr[indexInArr] = index;
                     indexInArr++;
@@ -208,7 +198,7 @@ public class Neighbours extends Application {
         }
         return noneArr;
     }
-
+/*
     int [] checkUnsatisfied(Actor[][] matrix){ //ARRAY MED UNSATISFIED
         int count = 0;
         for (int r = 0; r < matrix.length; r++){
@@ -235,17 +225,50 @@ public class Neighbours extends Application {
         }
         return UnsatisfiedArr;
     }
+    */
 
-    boolean isSatisfied (Actor [][] matrix, double threshold, int r, int c){                 //Return True för Satisfied, False för Unsatisfied
+    boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True för Satisfied, False för Unsatisfied
         int countNeighbours = 0;
         int countNeighboursLikeMe = 0;
 
-        for (r = r-1 ; c <= c+1 ; c++) {
+        if (matrix[personRow][personCol] == Actor.NONE) {
 
-            //Checking neighbours
+            return true;
+        }
 
+        for (int row = personRow - 1; row <= personRow + 1; row++) {                                    // Går igenom varje index precis intill
+            for (int col = personCol - 1; col <= personCol + 1; col++) {
+
+                boolean valid = isValidLocation(matrix.length, row, col);                              // Kallar på isValidLocation och kollar om r och c existerar i världen
+                boolean notMe = !(row == personRow && col == personCol);
+                boolean notNone = matrix[row][col] != Actor.NONE;
+
+                if (valid) {
+
+                    if (notMe && notNone) {
+                        countNeighbours++;
+                    }
+                    if (matrix[row][col] == matrix[personRow][personCol]) {
+                        countNeighboursLikeMe++;
+
+                    }
+                }
 
             }
+        }
+
+        boolean checkSatisfied = (countNeighboursLikeMe / countNeighbours) >= threshold;
+
+        return checkSatisfied;
+    }
+
+    // Check if inside world
+    boolean isValidLocation(int size, int row, int col) {
+
+
+
+
+
 
         return false;
     }
@@ -254,7 +277,7 @@ public class Neighbours extends Application {
 
     // Here you run your tests i.e. call your logic methods
     // to see that they really work
-    void test(){
+    void test() {
         // A small hard coded world for testing
         world = new Actor[][]{
                 {Actor.RED, Actor.RED, Actor.NONE},
@@ -268,6 +291,37 @@ public class Neighbours extends Application {
         int s = world.length;
         out.println(isValidLocation(s, 0, 0));
 
+        out.println(isSatisfied(world, th, 0, 0));
+
+        // Test for generateDistribution method
+
+        Actor[] arr = (generateDistributionArray(100, 0.25, 0.25, 0.5));
+
+        int blueCount = 0;
+        int redCount = 0;
+        int noneCount = 0;
+
+        for (int i = 0; i < arr.length; i++) {
+
+            if (arr[i] == Actor.BLUE) {
+                blueCount++;
+            }
+            if (arr[i] == Actor.RED) {
+                redCount++;
+            }
+            if (arr[i] == Actor.NONE) {
+                noneCount++;
+            }
+        }
+        out.println(blueCount == 25);
+        out.println(redCount == 25);
+        out.println(noneCount == 50);
+
+        int array[] = checkEmpty(world);
+        out.println(array[0] == 2);
+        out.println(array[1] == 3);
+        out.println(array[2] == 5);
+        out.println(array[3] == 7);
 
         /* Move of unsatisfied hard to test because of random */
 
@@ -314,7 +368,7 @@ public class Neighbours extends Application {
 
     // Render the state of the world to the screen
     public void renderWorld(GraphicsContext g) {
-        g.clearRect(0,0, width, height);
+        g.clearRect(0, 0, width, height);
         int size = world.length;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {

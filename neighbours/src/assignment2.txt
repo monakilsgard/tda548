@@ -1,0 +1,39 @@
+
+*** Assignment 2, Neighbours ***
+
+Simulation of segregation.
+See : http://nifty.stanford.edu/2014/mccown-schelling-model-segregation/
+
+This is s graphical program using JavaFX, see neighbours.png for a screen shot.
+All graphics is implemented you don't need to code any graphics (you may extend, make fancier, if you like)
+
+1.  Implement the method init(). This method is automatically called by JavaFX at program startup
+    (before any graphics is visible on screen).
+    The method should initialize the Actor[][] world-variable with some distribution of actors to
+    be used in the simulation. Use the values for the dist and nLocations variables.
+
+    NOTE: The world is the only variable allowed to be declared outside any method
+    (besides JavaFX stuff).
+
+    - If new to programming you should make a plan first.
+    - Use functional decomposition to break down the initialization into manageable step.
+    - Discuss with assistant before start implementing!!!
+
+    HINT: Remember the exercises!
+
+2.  Now your task is to implement the method updateWorld() which will find all
+    dissatisfied actors (RED or BLUE) and move them to new (random, previously not occupied) positions,
+    until all are satisfied.
+    The updateWorld() method is automatically called by a timer (you don't need to call it).
+    The updateWorld() method is *HUGE* if written as one single method! Must use functional decomposition
+    to break down into smaller methods!
+
+    - You should make a plan first.
+    - Discuss with assistant before start implementing!!!
+    - Make extensive use of testing, see comments in code!
+
+    NOTE: Not guaranteed to get all satisfied if selecting other values for dist and threshold variables (see code).
+
+3. (Optional) Add a real GUI to make it possible for users to select parameters like threshold.
+    Use JavaFx. See http://docs.oracle.com/javafx/2/get_started/jfxpub-get_started.htm
+    Make a copy of the working program and try to add the GUI.

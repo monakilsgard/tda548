@@ -25,7 +25,7 @@ import static java.lang.System.*;
  */
 // Extends Application because of JavaFX (just accept for now)
 
-  // SATISFIED DO NOT STAY PUT!?!? TODO FIX
+// SATISFIED DO NOT STAY PUT!?!? TODO FIX
 public class Neighbours extends Application {
 
     // Enumeration type for the Actors
@@ -54,7 +54,7 @@ public class Neighbours extends Application {
 
         State[][] tmp = checkUnsatisfied(world, threshold);
         int[] emptyArray = checkEmpty(world);
-        Actor [][] newWorld = switchPlaces(tmp, world, emptyArray);
+        Actor[][] newWorld = switchPlaces(tmp, world, emptyArray);
         world = newWorld;
 
 
@@ -180,10 +180,20 @@ public class Neighbours extends Application {
 
         for (int r = 0; r < matrix.length; r++) {
             for (int c = 0; c < matrix.length; c++) {
-                boolean unsatisfied = !(isSatisfied(matrix, threshold, r, c));                  // Send person coordinates (row/col) to isSatisfied to check if satisfied or not
+                boolean none = (matrix[r][c] == Actor.NONE);
+                boolean satisfied = (isSatisfied(matrix, threshold, r, c));
+                boolean unsatisfied = !satisfied;                                               // Send person coordinates (row/col) to isSatisfied to check if satisfied or not
                 if (unsatisfied) {
                     stateOfWorld[r][c] = State.UNSATISFIED;                                     // Add UNSATISFIED characteristic to new matrix
                 }
+                else if (satisfied && !none) {
+                    stateOfWorld[r][c] = State.SATISFIED;
+
+                }
+                else {
+                    stateOfWorld[r][c] = State.NA;
+                }
+
             }
         }
 
@@ -224,15 +234,14 @@ public class Neighbours extends Application {
 
             }
         }
-        //out.println("Neighbours total: " + countNeighbours);
-        //out.println("Neighbours like me: " + countNeighboursLikeMe);
+
 
         boolean checkSatisfied;
         if ((countNeighbours == 0)) {
             checkSatisfied = true;                                                                              // No neighbours = only white space surrounding
         } else {
             checkSatisfied = ((countNeighboursLikeMe / countNeighbours) >= threshold);
-            //ut.println("Percentage like me: " + (countNeighboursLikeMe / countNeighbours));
+
         }
 
 
@@ -251,7 +260,7 @@ public class Neighbours extends Application {
 
     Actor[][] switchPlaces(State[][] stateworld, Actor[][] prevWorld, int[] noneArray) {
 
-        int [] shuffleArray = shuffleNoneArr(noneArray);
+        int[] shuffleArray = shuffleNoneArr(noneArray);
         int k = 0;                                      //k är indexet i noneArray
         for (int r = 0; r < stateworld.length; r++) {
             for (int c = 0; c < stateworld.length; c++) {
@@ -271,7 +280,7 @@ public class Neighbours extends Application {
     }
 
 
-    int [] shuffleNoneArr(int[] noneArr){                               //Shuffla noneArrayen för why not?
+    int[] shuffleNoneArr(int[] noneArr) {                               //Shuffla noneArrayen för why not?
 
         for (int i = noneArr.length - 1; i > 0; i--) {
             int index = rand.nextInt(i + 1);
@@ -305,25 +314,30 @@ public class Neighbours extends Application {
 
         double th = 0.5;   // Simple threshold used for testing
 
-        // A first test!
 
 
 
-        State [][] testmatrix = checkUnsatisfied(world, th);
+        State[][] testmatrix = checkUnsatisfied(world, th);
         out.println(testmatrix[1][1] == State.UNSATISFIED);
         out.println(testmatrix[0][1] == State.UNSATISFIED);
         out.println(testmatrix[2][0] == State.UNSATISFIED);
+        out.println(testmatrix[2][1] == State.UNSATISFIED);
+        out.println((testmatrix[0][0] == State.SATISFIED) + " SHOULD BE TRUE");
+        out.println(testmatrix[1][0] == State.NA);
         out.println(testmatrix[1][1]);
-        out.println(testmatrix[0][1]);
+        out.println(testmatrix[1][0]);
         out.println(testmatrix[2][0]);
+        out.println(testmatrix[2][2] + " SHOULD BE SATISFIED");
+        out.println(testmatrix[0][0] + " SHOULD BE SATISFIED");                                                             //checkUnsatisified method not OK??
 
 
         int s = world.length;
-        out.println(isValidLocation(s, 0, 0));
+        out.println(isValidLocation(s, 0, 0));                                                                    
         out.println(!(isValidLocation(s, -1, 0)));
         out.println(!(isValidLocation(s, -1, -1)));
 
-
+        out.println(isSatisfied(noneWorld, th, 0, 0));                                                  
+        out.println(isSatisfied(noneWorld, th, 2, 2));
         out.println(isSatisfied(noneWorld, th, 1, 1));
         out.println(isSatisfied(world, th, 2, 0));
 

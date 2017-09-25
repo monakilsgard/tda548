@@ -7,6 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import javax.xml.bind.annotation.XmlAccessOrder;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -25,37 +26,7 @@ import static java.lang.System.*;
  */
 // Extends Application because of JavaFX (just accept for now)
 
-
-/* PLAN
-- Skapa en array
-- Shuffla array
-- Stoppa in array i matris
-- Skapa begränsad värld (matris ned 3x3)
-- Skapa en matris med Actor-objekt (BLUE/RED/NONE)
-- Definiera vad State (UNSATISFIED/NA/SATISFIED) är (metod)
-- Gå igenom hela listan och detektera vad som är vad (updateWorld)
-    - Flytta till ledig plats varje varv (berätta vad ledig plats är)
-- Säg åt hur hantera saker utanför matrisen/world (isValidLocation)
-- Stoppa in final värden i world
-
-Metoder:
-isValidLocation (Check if inside world)
-updateWorld ???? program??(% of surrounding neighbours that are like me)
-
-REGLER:
-Startvärde: isValidLocation
-If t = 70%, agent X is satisfied if at least 70% of its neighbors are also X
-If fewer than 70% are X, then the agent is not satisfied, and it will want to change its location in the grid
-
-When an agent is not satisfied, it can be moved to any vacant location in the grid. Any algorithm can be used to choose
-this new location. For example, a randomly selected cell may be chosen, or the agent could move to the nearest available location.
-All dissatisfied agents must be moved in the same round. After the round is complete, a new round begins, and
-dissatisfied agents are once again moved to new locations in the grid. These rounds continue until all agents in the
-neighborhood are satisfied with their location.
-
-
- */
-
+// SATISFIED DO NOT STAY PUT!?!? TODO FIX
 public class Neighbours extends Application {
 
     // Enumeration type for the Actors
@@ -80,13 +51,12 @@ public class Neighbours extends Application {
     void updateWorld() {
         // % of surrounding neighbours that are like me
         final double threshold = 0.7;
-        // Find all satisfied
-        //world = siwtchPlaces();
 
-        State [][] tmp = checkUnsatisfied(world, threshold);
-        int [] emptyArray = checkEmpty()
-        Actor [][] thisWorld = switchPlaces(tmp, world,)
 
+        State[][] tmp = checkUnsatisfied(world, threshold);
+        int[] emptyArray = checkEmpty(world);
+        Actor[][] newWorld = switchPlaces(tmp, world, emptyArray);
+        world = newWorld;
 
 
     }
@@ -96,24 +66,18 @@ public class Neighbours extends Application {
     // That's why we must have "@Override" and "public" (just accept for now)
     @Override
     public void init() {
-      //  test();    // <---------------- Uncomment to TEST!
+        //test();    // <---------------- Uncomment to TEST!
 
         // %-distribution of RED, BLUE and NONE
         double[] dist = {0.25, 0.25, 0.50};
         // Number of locations (places) in world (square)
         int nLocations = 900;
-        Actor[] generateArr = generateDistributionArray (nLocations , dist[0], dist[1], dist[2]);
-        Actor[] shuffleArr = shuffleArray (generateArr);
+        Actor[] generateArr = generateDistributionArray(nLocations, dist[0], dist[1], dist[2]);
+        Actor[] shuffleArr = shuffleArray(generateArr);
         world = toMatrix(shuffleArr);
 
 
     }
-
-
-
-
-
-
 
 
     // ----------- Utility methods -----------------
@@ -210,38 +174,47 @@ public class Neighbours extends Application {
         return noneArr;
     }
 
-// Create matrix with all Actors marked as UNSATISFIED. To be used together with checkEmpty array to move Actors around.
-    State[][] checkUnsatisfied(Actor[][] matrix, double threshold){
-        //int[] empty = checkEmpty(matrix);
-        State[][] stateOfWorld = new State[matrix.length][matrix.length];
-        for (int r = 0; r < matrix.length; r++){
-            for (int c = 0; c < matrix.length; c++){
-                boolean  unsatisfied = !(isSatisfied(matrix,threshold, r, c));
-                if (unsatisfied)  {
-                    stateOfWorld[r][c] = State.UNSATISFIED;
+    // Create matrix with all Actors marked as UNSATISFIED. To be used together with checkEmpty array to move Actors around.
+    State[][] checkUnsatisfied(Actor[][] matrix, double threshold) {
+
+        State[][] stateOfWorld = new State[matrix.length][matrix.length];                       // Define max (allowed) dimensions of world
+
+        for (int r = 0; r < matrix.length; r++) {
+            for (int c = 0; c < matrix.length; c++) {
+                boolean none = (matrix[r][c] == Actor.NONE);
+                boolean satisfied = (isSatisfied(matrix, threshold, r, c));
+                boolean unsatisfied = !satisfied;                                               // Send person coordinates (row/col) to isSatisfied to check if satisfied or not
+                if (unsatisfied) {
+                    stateOfWorld[r][c] = State.UNSATISFIED;                                     // Add UNSATISFIED characteristic to new matrix
+                } else if (satisfied && !none) {
+                    stateOfWorld[r][c] = State.SATISFIED;
+
+                } else {
+                    stateOfWorld[r][c] = State.NA;
                 }
+
             }
         }
 
         return stateOfWorld;
     }
-
+/*
 
     // Check if Actor.BLUE/RED is satisfied
 
     boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True för Satisfied, False för Unsatisfied
-        int countNeighbours = 0;
-        int countNeighboursLikeMe = 0;
+        double countNeighbours = 0;
+        double countNeighboursLikeMe = 0;
 
-        if (matrix[personRow][personCol] == Actor.NONE) {
+        if (matrix[personRow][personCol] == Actor.NONE) {                                                   // Exception: if white/blank space return true
 
             return true;
         }
 
-        for (int row = personRow - 1; row <= personRow + 1; row++) {                                    // Går igenom varje index precis intill
+        for (int row = personRow - 1; row <= personRow + 1; row++) {                                    // Checks every row/column the next one over (must be within bounds)
             for (int col = personCol - 1; col <= personCol + 1; col++) {
 
-                boolean valid = isValidLocation(matrix.length, row, col);                              // Kallar på isValidLocation och kollar om r och c existerar i världen
+                boolean valid = isValidLocation(matrix.length, row, col);                              // Calls on isValidLocation to check if r and c are in bounds. True = in bounds, and okay to continue
 
                 if (valid) {
 
@@ -250,28 +223,69 @@ public class Neighbours extends Application {
 
                     if (notMe && notNone) {
                         countNeighbours++;
-                    }
-                    if (matrix[row][col] == matrix[personRow][personCol]) {
-                        countNeighboursLikeMe++;
+                        if (matrix[row][col] == matrix[personRow][personCol]) {                                     // FIXED! Moved countNeighboursLikeMe IF inside countNeighbours IF
+                            countNeighboursLikeMe++;
 
+                        }
                     }
+
                 }
 
             }
         }
+
+
         boolean checkSatisfied;
         if ((countNeighbours == 0)) {
-            checkSatisfied = true;
+            checkSatisfied = true;                                                                              // No neighbours = only white space surrounding
+        } else {
+            checkSatisfied = ((countNeighboursLikeMe / countNeighbours) >= threshold);
+            out.println(countNeighboursLikeMe + " / " + countNeighbours);
+
         }
-            else {
-            checkSatisfied = (countNeighboursLikeMe / countNeighbours) >= threshold;
-        }
+
 
         return checkSatisfied;
     }
+*/
+    boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True för Satisfied, False för Unsatisfied
+        double redCount = 0;
+        double blueCount = 0;
+        boolean result = true;
+
+        for (int row = personRow - 1; row <= personRow + 1; row++) {                                    // Checks every row/column the next one over (must be within bounds)
+            for (int col = personCol - 1; col <= personCol + 1; col++) {
+
+                boolean notMe = !(personCol == col && personRow == row);
+
+                if (isValidLocation(matrix.length, row, col) && notMe) {
+                    if (matrix[row][col] == Actor.BLUE) {
+                        blueCount++;
+                    } else if (matrix[row][col] == Actor.RED) {
+                        redCount++;
+                    }
+                }
+            }
+        }
+
+
+        if (blueCount + redCount == 0){
+            result = true;
+        }
+        else if (matrix[personRow][personCol] == Actor.BLUE) {
+            result = blueCount / (blueCount + redCount) >= threshold;
+
+        } else if (matrix[personRow][personCol] == Actor.RED) {
+            result = redCount / (blueCount + redCount) >= threshold;
+        }
+
+        return result;
+    }
+
+
 
     // Check if inside world
-    boolean isValidLocation(int size, int row, int col) {
+    boolean isValidLocation(int size, int row, int col) {                           // Checks if nearby locations are in bounds
 
 
         boolean valid = (row >= 0 && col >= 0 && row < size && col < size);
@@ -280,21 +294,21 @@ public class Neighbours extends Application {
     }
 
 
+    Actor[][] switchPlaces(State[][] stateworld, Actor[][] prevWorld, int[] noneArray) {
 
-    Actor [][] switchPlaces (State [][] stateworld, Actor [][] prevWorld, int [] noneArray){
-
-        int k = 0;
-        for (int r = 0 ; r < stateworld.length ; r++){
-            for ( int c = 0 ; c < stateworld.length ; c++){
-                if (stateworld [r][c] == State.UNSATISFIED) {
-                    Actor tmp = prevWorld [r][c];
-                    prevWorld [r][c] = Actor.NONE;
-                    int index = noneArray[k];
-                    int row = index / prevWorld.length;
+        int[] shuffleArray = shuffleNoneArr(noneArray);
+        int k = 0;                                      //k är indexet i noneArray
+        for (int r = 0; r < stateworld.length; r++) {
+            for (int c = 0; c < stateworld.length; c++) {
+                if (stateworld[r][c] == State.UNSATISFIED) {
+                    Actor tmp = prevWorld[r][c];                // Sparar Actor/Färgen till en temporär variabel
+                    prevWorld[r][c] = Actor.NONE;               //"Flyttar" tomma platsen till platsen där Actor var
+                    int index = shuffleArray[k];                // Hämtar indexet (som Actor ska flyttas till) från noneArr (shuffle version)
+                    int row = index / prevWorld.length;         //Konverterar i till row & col
                     int col = index % prevWorld.length;
-                    prevWorld[row][col] = tmp;
+                    prevWorld[row][col] = tmp;                  //Stoppar in tmp-värdet på framtagna indexet i matrisen
 
-                   k++;
+                    k++;
                 }
             }
         }
@@ -302,17 +316,19 @@ public class Neighbours extends Application {
     }
 
 
+    int[] shuffleNoneArr(int[] noneArr) {                               //Shuffla noneArrayen för why not?
 
+        for (int i = noneArr.length - 1; i > 0; i--) {
+            int index = rand.nextInt(i + 1);
+            int j = noneArr[index];
+            noneArr[index] = noneArr[i];
+            noneArr[i] = j;
 
+        }
 
+        return noneArr;
 
-
-
-
-
-
-
-
+    }
 
     // ------- Testing -------------------------------------
 
@@ -320,13 +336,13 @@ public class Neighbours extends Application {
     // to see that they really work
     void test() {
         // A small hard coded world for testing
-        world = new Actor[][]{
+        Actor[][] world = new Actor[][]{
                 {Actor.RED, Actor.RED, Actor.NONE},
                 {Actor.NONE, Actor.BLUE, Actor.NONE},
                 {Actor.RED, Actor.NONE, Actor.BLUE}
         };
 
-        Actor [][] noneWorld = new Actor[][]{
+        Actor[][] noneWorld = new Actor[][]{
                 {Actor.NONE, Actor.NONE, Actor.NONE},
                 {Actor.NONE, Actor.BLUE, Actor.NONE},
                 {Actor.NONE, Actor.NONE, Actor.NONE}
@@ -334,11 +350,46 @@ public class Neighbours extends Application {
 
         double th = 0.5;   // Simple threshold used for testing
 
-        // A first test!
+
+        out.println(isSatisfied(noneWorld, th, 0, 0));
+        out.println(isSatisfied(noneWorld, th, 2, 2));
+        out.println(isSatisfied(noneWorld, th, 1, 1));
+        out.println(isSatisfied(noneWorld, th, 2, 0));
+        out.println("----------------");
+
+
+        out.println(isSatisfied(world, th, 0, 0));
+        out.println(isSatisfied(world, th, 2, 2));
+        out.println(!isSatisfied(world, th, 1, 1));
+        out.println(!isSatisfied(world, th, 2, 0));
+        out.println("----------------");
+
+
+    /*
+
+
+        State[][] testmatrix = checkUnsatisfied(world, th);
+        out.println(testmatrix[1][1] == State.UNSATISFIED);
+        out.println(testmatrix[0][1] == State.UNSATISFIED);
+        out.println(testmatrix[2][0] == State.UNSATISFIED);
+        out.println(testmatrix[2][1] == State.UNSATISFIED);
+        out.println((testmatrix[0][0] == State.SATISFIED) + " SHOULD BE TRUE");
+        out.println(testmatrix[1][0] == State.NA);
+        out.println(testmatrix[1][1]);
+        out.println(testmatrix[1][0]);
+        out.println(testmatrix[2][0]);
+        out.println(testmatrix[2][2] + " SHOULD BE SATISFIED");
+        out.println(testmatrix[0][0] + " SHOULD BE SATISFIED");
+                                                                 *///checkUnsatisified method not OK??
+/*
+
         int s = world.length;
         out.println(isValidLocation(s, 0, 0));
+        out.println(!(isValidLocation(s, -1, 0)));
+        out.println(!(isValidLocation(s, -1, -1)));
 
-        out.println(isSatisfied(noneWorld, th, 1, 1));
+*/
+
 
         // Test for generateDistribution method
 

@@ -92,24 +92,25 @@ public class Neighbours extends Application {
         int RED = (int) StrictMath.round(arr.length * z); // 25% RED
         int NONE = (int) StrictMath.round(arr.length * w); // 50% WHITE
 
+        // Filling up the array with Blues, Reds and Nones
+
         for (int i = 0; i < BLUE; i++) {
 
-            Actor valueofBlue = Actor.BLUE;
-            arr[i] = valueofBlue;
+            Actor valueOfBlue = Actor.BLUE;
+            arr[i] = valueOfBlue;
 
         }
 
         for (int i = BLUE; i < BLUE + RED; i++) {
-
-            Actor valueofRed = Actor.RED;
-            arr[i] = valueofRed;
+            Actor valueOfRed = Actor.RED;
+            arr[i] = valueOfRed;
         }
 
 
         for (int i = BLUE + RED; i < arr.length; i++) {
 
-            Actor valueofNone = Actor.NONE;
-            arr[i] = valueofNone;
+            Actor valueOfNone = Actor.NONE;
+            arr[i] = valueOfNone;
         }
 
         return arr;
@@ -118,10 +119,10 @@ public class Neighbours extends Application {
     // SHUFFLES ARRAY
     Actor[] shuffleArray(Actor[] array) {
         for (int i = array.length - 1; i > 0; i--) {
-            int index = rand.nextInt(i + 1); // gör random mellan 0 och i + 1 (i = max)
+            int index = rand.nextInt(i + 1); // Random between 0 -> i+1
             Actor a = array[index];
-            array[index] = array[i]; //sätter värdet på i på slumpat index
-            array[i] = a; // flyttar/bytar plats på indexet man flyttade till med startindexet
+            array[index] = array[i]; //Switch places (i and random index(a) )
+            array[i] = a;
 
 
         }
@@ -146,7 +147,7 @@ public class Neighbours extends Application {
         return matrix;
     }
 
-    // Creates Array with Actor.NONE
+    // Creates Array with index for Nones
     int[] checkEmpty(Actor[][] matrix) {
         int count = 0;
         for (int r = 0; r < matrix.length; r++) {
@@ -181,74 +182,18 @@ public class Neighbours extends Application {
 
         for (int r = 0; r < matrix.length; r++) {
             for (int c = 0; c < matrix.length; c++) {
-                boolean none = (matrix[r][c] == Actor.NONE);
-                boolean satisfied = (isSatisfied(matrix, threshold, r, c));
-                boolean unsatisfied = !satisfied;                                               // Send person coordinates (row/col) to isSatisfied to check if satisfied or not
+                boolean unsatisfied = !(isSatisfied(matrix, threshold, r, c));
                 if (unsatisfied) {
                     stateOfWorld[r][c] = State.UNSATISFIED;                                     // Add UNSATISFIED characteristic to new matrix
-                } else if (satisfied && !none) {
-                    stateOfWorld[r][c] = State.SATISFIED;
-
-                } else {
-                    stateOfWorld[r][c] = State.NA;
-                }
+               }
 
             }
         }
 
         return stateOfWorld;
     }
-/*
-
-    // Check if Actor.BLUE/RED is satisfied
-
-    boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True för Satisfied, False för Unsatisfied
-        double countNeighbours = 0;
-        double countNeighboursLikeMe = 0;
-
-        if (matrix[personRow][personCol] == Actor.NONE) {                                                   // Exception: if white/blank space return true
-
-            return true;
-        }
-
-        for (int row = personRow - 1; row <= personRow + 1; row++) {                                    // Checks every row/column the next one over (must be within bounds)
-            for (int col = personCol - 1; col <= personCol + 1; col++) {
-
-                boolean valid = isValidLocation(matrix.length, row, col);                              // Calls on isValidLocation to check if r and c are in bounds. True = in bounds, and okay to continue
-
-                if (valid) {
-
-                    boolean notMe = !(row == personRow && col == personCol);
-                    boolean notNone = matrix[row][col] != Actor.NONE;
-
-                    if (notMe && notNone) {
-                        countNeighbours++;
-                        if (matrix[row][col] == matrix[personRow][personCol]) {                                     // FIXED! Moved countNeighboursLikeMe IF inside countNeighbours IF
-                            countNeighboursLikeMe++;
-
-                        }
-                    }
-
-                }
-
-            }
-        }
-
-
-        boolean checkSatisfied;
-        if ((countNeighbours == 0)) {
-            checkSatisfied = true;                                                                              // No neighbours = only white space surrounding
-        } else {
-            checkSatisfied = ((countNeighboursLikeMe / countNeighbours) >= threshold);
-            out.println(countNeighboursLikeMe + " / " + countNeighbours);
-
-        }
-
-
-        return checkSatisfied;
-    }
-*/
-    boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True för Satisfied, False för Unsatisfied
+// Checks if person is Satisfied
+    boolean isSatisfied(Actor[][] matrix, double threshold, int personRow, int personCol) {                 //Return True for Satisfied, False for Unsatisfied
         double redCount = 0;
         double blueCount = 0;
         boolean result = true;
@@ -296,18 +241,17 @@ public class Neighbours extends Application {
 
     Actor[][] switchPlaces(State[][] stateworld, Actor[][] prevWorld, int[] noneArray) {
 
-        int[] shuffleArray = shuffleNoneArr(noneArray);
-        int k = 0;                                      //k är indexet i noneArray
+        int[] shuffledArray = shuffleNoneArr(noneArray);
+        int k = 0;                                      //k is indexet in noneArray
         for (int r = 0; r < stateworld.length; r++) {
             for (int c = 0; c < stateworld.length; c++) {
                 if (stateworld[r][c] == State.UNSATISFIED) {
-                    Actor tmp = prevWorld[r][c];                // Sparar Actor/Färgen till en temporär variabel
-                    prevWorld[r][c] = Actor.NONE;               //"Flyttar" tomma platsen till platsen där Actor var
-                    int index = shuffleArray[k];                // Hämtar indexet (som Actor ska flyttas till) från noneArr (shuffle version)
-                    int row = index / prevWorld.length;         //Konverterar i till row & col
+                    Actor tmp = prevWorld[r][c];                // Saves Actor/colour to another variable
+                    prevWorld[r][c] = Actor.NONE;               // Copies empty to the Actors old index
+                    int index = shuffledArray[k];               // Finds index that Actor will be put in from noneArr
+                    int row = index / prevWorld.length;         //Converts index to row and col
                     int col = index % prevWorld.length;
-                    prevWorld[row][col] = tmp;                  //Stoppar in tmp-värdet på framtagna indexet i matrisen
-
+                    prevWorld[row][col] = tmp;                  //Copies tmp to noneArr's index in matrix
                     k++;
                 }
             }
@@ -316,7 +260,7 @@ public class Neighbours extends Application {
     }
 
 
-    int[] shuffleNoneArr(int[] noneArr) {                               //Shuffla noneArrayen för why not?
+    int[] shuffleNoneArr(int[] noneArr) {                              
 
         for (int i = noneArr.length - 1; i > 0; i--) {
             int index = rand.nextInt(i + 1);

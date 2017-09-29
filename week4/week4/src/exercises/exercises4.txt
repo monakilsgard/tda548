@@ -1,0 +1,38 @@
+**** Exercises week 4 ***
+
+
+-   If you're new to programming, do as many exercises as possible, 3 and 4 will prepare for lab3
+    Do left over exercises later or as exam recap.
+
+
+General comment: Rather hard exercises.
+
+Learn to search: Try to find what you need in the existing classes (String, etc), avoid
+to implement whats already existing!
+
+Exercises
+---------
+
+1.  See Ex1WordCount. Implement a method that calculates the number of word in a text.
+
+2.  See Ex2Argots. Implement a method to translate to the Robber language and a method to
+    translate to Pig Latin
+    See, https://en.wikipedia.org/wiki/R%C3%B6varspr%C3%A5ket and
+    https://en.wikipedia.org/wiki/Pig_Latin
+
+    Use functional decomposition if methods too big. Use methods from String and StringBuilder.
+
+3.  See Ex3ReadNumber. Implement method readNumber.
+    Must use: List/ArrayList, StringBuilder!
+
+4.  See Ex4CheckParen. Implement method to check parentheses matching for (), [] and {}.
+    Must use a stack (= Dequeue/ArrayQueue in Java).
+
+5.  See Ex5StringOrdering. Implement a method that checks if all chars in a string have
+    the same "ordering" as a given string. See comments in file.
+
+
+
+
+
+

@@ -57,6 +57,43 @@ public class Calculator {
 
     // ------- Infix 2 Postfix ------------------------
 
+    List<String> in2post (List<String> infixStr){
+        Deque<String> stack = new ArrayDeque<>();
+        List<String> outputList = new ArrayList<>();
+       for ( int i = 0 ; i < infixStr.size() ; i++){        // Loop through List
+           if (Character.isDigit(infixStr.indexOf(i))){         // ????? Loopa igenom strängen och leta efter digit på nåt sätt ?????;
+           stack.push(STRING);                                  // Push to stack ?
+           }
+           else if ()
+       }
+        return null;
+
+    }
+
+
+      /*  while there are tokens to be read:
+        read a token.
+        if the token is a number, then push it to the output queue.
+        if the token is an operator, then:
+        while there is an operator at the top of the operator stack with
+        greater than or equal to precedence and the operator is left associative:
+        pop operators from the operator stack, onto the output queue.
+                push the read operator onto the operator stack.
+        if the token is a left bracket (i.e. "("), then:
+        push it onto the operator stack.
+        if the token is a right bracket (i.e. ")"), then:
+        while the operator at the top of the operator stack is not a left bracket:
+        pop operators from the operator stack onto the output queue.
+        pop the left bracket from the stack.
+		// if the stack runs out without finding a left bracket, then there are
+		mismatched parentheses.
+        if there are no more tokens to read:
+        while there are still operator tokens on the stack:
+		//if the operator token on the top of the stack is a bracket, then
+		there are mismatched parentheses.
+        pop the operator onto the output queue. */
+
+
     // Error messages
     final static String MISSING_OPERATOR = "Missing operator or parenthesis";
     final static String OP_NOT_FOUND = "Operator not found";

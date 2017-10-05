@@ -1,0 +1,47 @@
+
+*** Assignment 3, A Calculator ***
+
+Here we'll implement a (somewhat simplified) command line calculator. A run might look like:
+
+    > 1 + 1
+    2.0
+    > 2 / 3
+    0.6666666666666666
+    >  1 + 2 * 3
+    7.0
+    >  (1 + 2) * 3
+    9.0
+    > 2 ^ 2 + 3
+    7.0           (Ctrl c to quit, or just stop in IntelliJ)
+
+
+To get the result a series of operations (method calls) are carried out:
+- read expression -> tokenize (break up into parts) -> infix to postfix conversion ->
+                        evaluation -> print result
+
+Each operation is performed by a method. We implement and test one method at the time.
+
+For all methods:
+- They are all complex! Must use functional decomposition. Some (helper) methods are given!
+- Create tests for methods and test extensively! There are many existing tests in Test-file
+  (using test helper methods, see end of file)
+- Also: Remember exercises!
+
+1.  Implement the method tokenize. The method takes a string and breaks it up into tokens.
+    A token is a number (as a string), an operator or a parentheses (left or right).
+    The tokens are returned as a list of String, see tests at "tokenization" in file Test.
+    Uncomment and run tests, one at the time!
+
+2.  Implement method infix2postfix. This method converts a String list in infix
+    form to a String list in postfix form. You need a Stack and a List (for the output).
+    See https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+    Here's a video for the algorithm (there are many more): https://www.youtube.com/watch?v=vXPL6UavUeA
+    Use functional decomposition. Use the tests in file Test.
+
+3.  Implement the evalPostFix method. Method takes an expression in the form of an postfix String list
+    and produces the result, a double. Use a switch-statement! Use tests!
+
+When all test pass you should be able to run REPL, the command line interface to the Calculator.
+See file REPL
+
+4. (Optional) Add a graphical user interface (GUI) to the calculator.

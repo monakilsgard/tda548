@@ -55,20 +55,41 @@ public class Calculator {
         throw new RuntimeException(OP_NOT_FOUND);
     }
 
-    // ------- Infix 2 Postfix ------------------------
+     // ------- Infix 2 Postfix ------------------------
 
-    List<String> in2post (List<String> infixStr){
-        Deque<String> stack = new ArrayDeque<>();
+    List<String> infix2postfix(List<String> infixStr) {
+
+        Deque<String> operatorStack = new ArrayDeque<>();
         List<String> outputList = new ArrayList<>();
-       for ( int i = 0 ; i < infixStr.size() ; i++){        // Loop through List
-           if (Character.isDigit(infixStr.indexOf(i))){         // ????? Loopa igenom strängen och leta efter digit på nåt sätt ?????;
-           stack.push(STRING);                                  // Push to stack ?
-           }
-           else if ()
-       }
-        return null;
 
-    }
+        for (int i = 0; i < infixStr.size(); i++) {      // while there are tokens to be read
+            String token = infixStr.get(i);              // put string at index i in token
+            char firstChar = token.charAt(0);            // put first character in string in firstChar
+            
+            if (Character.isDigit(firstChar)) {          // if firsChar is a number, add token to the list
+                outputList.add(token);
+            }
+            
+            if (OPERATORS.contains(token))  {
+
+                String top = operatorStack.peek();
+
+                while (prio ) {
+
+                }
+
+
+
+            }
+
+
+
+
+
+            }
+            return null;
+        }
+
 
 
       /*  while there are tokens to be read:

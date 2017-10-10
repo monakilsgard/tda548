@@ -55,7 +55,7 @@ public class Calculator {
         throw new RuntimeException(OP_NOT_FOUND);
     }
 
-     // ------- Infix 2 Postfix ------------------------
+    // ------- Infix 2 Postfix ------------------------
 
     List<String> infix2postfix(List<String> infixStr) {
 
@@ -65,41 +65,44 @@ public class Calculator {
         for (int i = 0; i < infixStr.size(); i++) {      // while there are tokens to be read
             String token = infixStr.get(i);              // put string at index i in token
             char firstChar = token.charAt(0);            // put first character in string in firstChar
-            
+
             if (Character.isDigit(firstChar)) {          // if firsChar is a number, add token to the list
                 outputList.add(token);
             }
-            
+
+            String top = operatorStack.peek();
             if (OPERATORS.contains(token))  {
-
-                String top = operatorStack.peek();
-
-                while (prio ) {
-
-                }
+                while (checkPrio(top, token) && !(operatorStack.isEmpty())) {
+                    outputList.add(operatorStack.pop());
+                }operatorStack.push(token);
 
 
+            }if (token.equals("(")){
+                operatorStack.push(token);
 
-            }
-
-
-
-
+            }if (token.equals(")")){
+                while(top != "("){
+                    outputList.add(operatorStack.pop());
+                }operatorStack.pop();
 
             }
-            return null;
+
+            //throw new IllegalArgumentException(MISSING_OPERATOR);
+
+
         }
-
+        return null;
+    }
 
 
       /*  while there are tokens to be read:
         read a token.
         if the token is a number, then push it to the output queue.
         if the token is an operator, then:
-        while there is an operator at the top of the operator stack with
-        greater than or equal to precedence and the operator is left associative:
-        pop operators from the operator stack, onto the output queue.
-                push the read operator onto the operator stack.
+             while there is an operator at the top of the operator stack with
+                greater than or equal to precedence and the operator is left associative:
+                    pop operators from the operator stack, onto the output queue.
+            push the read operator onto the operator stack.
         if the token is a left bracket (i.e. "("), then:
         push it onto the operator stack.
         if the token is a right bracket (i.e. ")"), then:
@@ -119,8 +122,7 @@ public class Calculator {
     final static String MISSING_OPERATOR = "Missing operator or parenthesis";
     final static String OP_NOT_FOUND = "Operator not found";
 
-    // TODO
-
+//------------GetPrecedence-----------------------------------
     int getPrecedence(String op) {
         if ("+-".contains(op)) {
             return 2;
@@ -133,6 +135,7 @@ public class Calculator {
         }
     }
 
+//--------------------GetAssociativity---------------------------
     Assoc getAssociativity(String op) {
         if ("+-*/".contains(op)) {
             return Assoc.LEFT;
@@ -142,7 +145,7 @@ public class Calculator {
             throw new RuntimeException(OP_NOT_FOUND);
         }
     }
-
+//------------------Assoc-----------------------------------
     enum Assoc {
         LEFT,
         RIGHT
@@ -152,20 +155,21 @@ public class Calculator {
 
     List<String> tokenize(String expr) {
         List<String> tokenList = new ArrayList<>();
-        char[] exprArr = expr.toCharArray();
-        for (int i = 0; i < exprArr.length; ) {
-            if (Character.isDigit(exprArr[i])) {
-                i = readNumber(tokenList, expr, i);
-            } else if (OPERATORS.indexOf(exprArr[i]) >= 0) {
-                tokenList.add(Character.toString(exprArr[i]));
-                i++;
-            } else if (PARENTHESES.indexOf(exprArr[i]) >= 0) {
-                tokenList.add(Character.toString(exprArr[i]));
-                i++;
-            } else {
-                i++;
+            char[] exprArr = expr.toCharArray();
+            for (int i = 0; i < exprArr.length; ) {
+                if (Character.isDigit(exprArr[i])) {
+                    i = readNumber(tokenList, expr, i);
+                } else if (OPERATORS.indexOf(exprArr[i]) >= 0) {
+                    tokenList.add(Character.toString(exprArr[i]));
+                    i++;
+                } else if (PARENTHESES.indexOf(exprArr[i]) >= 0) {
+                    tokenList.add(Character.toString(exprArr[i]));
+                    i++;
+                } else {
+                    i++;
+                }
             }
-        }
+
 
         return tokenList;
     }
@@ -206,11 +210,15 @@ public class Calculator {
                 if (matching(ch) == top) {
                     stack.pop();
                 } else {
-                    return false;
                 }
             }
         }
         return false;
+    }
+//------------CheckPrio--------------------------------------------
+
+    boolean checkPrio(String topOfStack, String token){
+        return (getPrecedence(token) <= getPrecedence(topOfStack) && getAssociativity(token) ==  Assoc.LEFT);
     }
 
 //----------- Matching ---------------------------------------

@@ -35,7 +35,7 @@ public class Calculator {
     // ------  Evaluate RPN expression -------------------
     // !!!! http://www.cse.chalmers.se/edu/course/tda548/misc/Lab3.pdf Kolla sliden Evakuering av Postfix för att fatta hur evalPostFix funkar ;)
 
-    public double evalPostfix(List<String> postfix){               //Calculate postfix result
+    public double evalPostfix(List<String> postfix){               //Calculate postfix result (must be public so REPL can use it)
         Deque<String> operandStack = new ArrayDeque<>();
 
         for (String str : postfix){                      //Loop until list postfix is empty (convert list to string to charArray

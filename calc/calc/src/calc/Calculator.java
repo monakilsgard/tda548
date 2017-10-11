@@ -27,18 +27,39 @@ public class Calculator {
         if (expr.length() == 0) {
             return NaN;
         }
-        // List<String> tokens = tokenize(expr);       <---------------- HERE are the methods!!!!
-        // List<String> postfix = infix2Postfix(tokens);
-        return 0; // 0 just for now, should be: return evalPostfix(postfix);
+        List<String> tokens = tokenize(expr);
+        List<String> postfix = infix2Postfix(tokens);
+        return evalPostfix(postfix);
     }
 
     // ------  Evaluate RPN expression -------------------
+    // !!!! http://www.cse.chalmers.se/edu/course/tda548/misc/Lab3.pdf Kolla sliden Evakuering av Postfix för att fatta hur evalPostFix funkar ;)
 
-    double eval(List<String> postfix){
-        double result;
-        
-        
-        return result;
+    public double evalPostfix(List<String> postfix){               //Calculate postfix result
+        Deque<String> operandStack = new ArrayDeque<>();
+
+        for (String str : postfix){                      //Loop until list postfix is empty (convert list to string to charArray
+            if (!OPERATORS.contains(str)) {                 //If digit, push to stack
+                operandStack.push(str);
+            }
+            if (OPERATORS.contains(str)){                   //If (binary) operator,pop 2 elements from stack, use applyOperator method to calculate, push result to stack
+                if (operandStack.size() >= 2) {             //Check if at least 2 operands in stack (otherwise won't work)
+                    double d1 = Double.valueOf(operandStack.pop());             //Save top of stack to d1 and convert to double (for use in applyOperator method)
+                    double d2 = Double.valueOf(operandStack.pop());             //Save next top of stack to d1
+                    double binaryResult = applyOperator(str, d1, d2);           //Call on method applyOperator and save result
+                    operandStack.push(Double.toString(binaryResult));           //Push result to top of stack (convert back to string)    
+                }
+                else{
+                    throw new IllegalArgumentException(MISSING_OPERAND);        //Missing operands exception
+                }
+            }
+        }
+
+        if (!(operandStack.size() == 1)){                               //Result OK only if stack only contains one element and postfix list is empty
+            throw new IllegalArgumentException(MISSING_OPERATOR);        //Throw if too many/too few operators 
+        }
+
+        return Double.parseDouble(operandStack.peek());               //Convert result at top of stack to double and return
     }
 
     double applyOperator(String op, double d1, double d2) {
